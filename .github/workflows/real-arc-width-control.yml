@@ -1,0 +1,38 @@
+name: Real ARC equal-state-width control
+
+on:
+  push:
+    branches:
+      - research/wave-arc-fair30
+    paths:
+      - '.github/workflows/real-arc-width-control.yml'
+  workflow_dispatch:
+
+jobs:
+  real16:
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [0, 1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU PyTorch
+        run: python -m pip install --upgrade pip && python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen 30-task real-width control
+        run: |
+          python research/experiments/real_arc_width_control.py \
+            --seed ${{ matrix.seed }} \
+            --limit 30 \
+            --iterations 500 \
+            --channels 16 \
+            --output research/experiments/real_arc16_seed${{ matrix.seed }}.csv
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-arc16-seed-${{ matrix.seed }}
+          path: research/experiments/real_arc16_seed${{ matrix.seed }}.csv
