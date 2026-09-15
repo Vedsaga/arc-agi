@@ -1,0 +1,38 @@
+name: ARC final wave-vs-quadratic gate
+
+on:
+  push:
+    branches:
+      - research/wave-arc-fair30
+    paths:
+      - 'research/experiments/arc_final_gate.py'
+      - '.github/workflows/arc-final-gate.yml'
+  workflow_dispatch:
+
+jobs:
+  final-gate:
+    strategy:
+      fail-fast: false
+      matrix:
+        offset: [0, 30]
+        seed: [0, 1, 2]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU PyTorch
+        run: python -m pip install --upgrade pip && python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run final gate shard
+        run: |
+          python research/experiments/arc_final_gate.py \
+            --offset ${{ matrix.offset }} \
+            --seed ${{ matrix.seed }} \
+            --iterations 500 \
+            --output research/experiments/arc_final_offset${{ matrix.offset }}_seed${{ matrix.seed }}.csv
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: arc-final-offset${{ matrix.offset }}-seed${{ matrix.seed }}
+          path: research/experiments/arc_final_offset${{ matrix.offset }}_seed${{ matrix.seed }}.csv
