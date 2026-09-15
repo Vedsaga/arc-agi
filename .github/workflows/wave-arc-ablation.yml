@@ -1,0 +1,39 @@
+name: Wave ARC causal ablations
+
+on:
+  push:
+    branches:
+      - research/wave-arc-fair30
+    paths:
+      - '.github/workflows/wave-arc-ablation.yml'
+  workflow_dispatch:
+
+jobs:
+  ablate:
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [no_phase, linear]
+        seed: [0, 1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU PyTorch
+        run: python -m pip install --upgrade pip && python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen 30-task ablation
+        run: |
+          python research/experiments/wave_arc_ablation.py \
+            --mode ${{ matrix.mode }} \
+            --seed ${{ matrix.seed }} \
+            --limit 30 \
+            --iterations 500 \
+            --output research/experiments/wave_arc_${{ matrix.mode }}_seed${{ matrix.seed }}.csv
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave-arc-${{ matrix.mode }}-seed-${{ matrix.seed }}
+          path: research/experiments/wave_arc_${{ matrix.mode }}_seed${{ matrix.seed }}.csv
