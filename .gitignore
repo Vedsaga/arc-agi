@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+
+# Local/generated solver outputs
+submission.json
+*_submission.json
+*_results.csv
+*.log

@@ -1,56 +1,61 @@
-# ARC-AGI Semantic Quotient Search
+# ARC-AGI-2 Workbench
 
-Experimental ARC-AGI-2 research repo exploring a simple hypothesis:
+This repository combines two related pieces of ARC-AGI-2 work:
 
-> Search should operate over task-distinguishable behaviors rather than every syntactically distinct program.
+1. A local visual explorer for browsing tasks and practicing hidden-answer solving.
+2. Research experiments and Kaggle notebooks for symbolic ARC solving.
 
-## Kaggle notebook
+## Start the local explorer
 
-`notebooks/semantic_quotient_search_arc_agi2_v0.ipynb`
+The explorer is a dependency-free static site. From the repository root:
 
-The notebook is self-contained and uses only NumPy/pandas plus the ARC Prize 2026 ARC-AGI-2 competition data. In Kaggle:
+```bash
+python3 -m http.server 8000
+```
 
-1. Join **ARC Prize 2026 - ARC-AGI-2**.
-2. Create/import a notebook and attach the competition data.
-3. Import/open `notebooks/semantic_quotient_search_arc_agi2_v0.ipynb`.
-4. Run all cells.
-5. Inspect the public evaluation accuracy and `semantic_quotient_eval.csv` diagnostics.
-6. The final cell writes `submission.json` plus `semantic_quotient_test.csv`.
-7. Submit `submission.json` through the competition workflow.
+Open <http://localhost:8000/dist/>.
 
-## What v0 measures
+The explorer reads the local JSON files from `data/training` and `data/evaluation`; it does not upload the dataset anywhere.
 
-- raw symbolic hypotheses generated per task
-- observational equivalence classes on demonstration inputs
-- quotient ratio (`raw / classes`)
-- exact demonstration-surviving behavior classes
-- Hartley uncertainty `log2(number of behavior classes)`
-- wall-clock search time
-- exact ARC output accuracy using either of the two allowed attempts
+### Explorer workflow
 
-Here, **semantic equivalence** is intentionally restricted to *observational equivalence under the task demonstrations*. It is not claimed to be universal semantic equivalence.
+- Choose **Training** or **Public eval**, then search by task ID.
+- Use `←` and `→` to move between tasks, or press `R` for a random task.
+- Turn on **Challenge mode** to hide test outputs.
+- Build a prediction in the **Your answer** editor by resizing the grid and painting cells.
+- Use **Check guess** for private exact-match feedback without revealing the official output.
+- Use **Focus view** for a larger view of any visible grid.
 
-## Current DSL
+## Repository map
 
-- identity
-- rotations
-- horizontal/vertical flips
-- transpose
-- crop to non-background bounding box
-- depth-2 compositions
-- task-learned global color remappings
+| Path | Purpose |
+| --- | --- |
+| [`data/`](data/) | Local ARC-AGI-2 task JSON files: 1,000 training tasks and 120 public evaluation tasks. |
+| [`dist/`](dist/) | The local static explorer (`index.html`, `styles.css`, `app.js`). |
+| [`docs/`](docs/) | Dataset notes and local explorer instructions. |
+| [`research/experiments/`](research/experiments/) | Python research scripts for symbolic and behavioral search. |
+| [`research/notebooks/`](research/notebooks/) | Kaggle/Jupyter notebooks for ARC-AGI-2 experiments. |
 
-This is intentionally a small baseline. The goal of v0 is to make the information/search hypothesis measurable before increasing solver power.
+## Research track
 
-## Planned experiments
+The research work explores whether search over task-distinguishable behavior classes can reduce the computation required to reach correct ARC solutions compared with searching over syntactically distinct programs.
 
-1. Incremental quotienting while expanding the program tree, so equivalent branches are pruned before generating descendants.
-2. Object/relation primitives: components, containment, alignment, symmetry completion, repetition, counting, line extension, hole filling, and object-to-object mappings.
-3. Non-uniform priors over behavior classes and Shannon entropy diagnostics.
-4. Information-gain-per-compute scheduling for selecting which hypothesis families to expand.
-5. Minimal-demonstration ablations: measure which ARC examples actually eliminate the successful competing rules.
-6. Learned proposal mechanisms while retaining exact symbolic verification and behavioral quotienting.
+Current directions include:
 
-## Research question
+- Semantic quotient search over observationally equivalent hypotheses.
+- Backward edit-graph induction and structural anti-unification.
+- Object/relation primitives, non-uniform priors, and information-gain scheduling.
+- Exact symbolic verification with ARC pass@2 diagnostics.
 
-> Does searching over task-distinguishable behavior classes reduce the computation required to reach a correct ARC solution compared with searching over syntactically distinct programs?
+The main semantic quotient notebook is [`research/notebooks/semantic_quotient_search_arc_agi2_v0.ipynb`](research/notebooks/semantic_quotient_search_arc_agi2_v0.ipynb). It produces `submission.json` and diagnostic CSVs when run in Kaggle.
+
+## Documentation
+
+- [ARC-AGI-2 dataset and task format](docs/arc-agi-2-dataset.md)
+- [Local explorer instructions](docs/local-explorer.md)
+
+## Data and competition note
+
+The public training and evaluation files are included for local exploration and research. Kaggle’s private leaderboard tasks are not included in this repository; their scores can only be obtained through the competition evaluator.
+
+The dataset and upstream materials are distributed under the included [Apache-2.0 license](LICENSE).

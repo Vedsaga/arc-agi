@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0e1017" />
+    <meta name="description" content="A local visual explorer for the ARC-AGI-2 dataset." />
+    <title>ARC Explorer · ARC-AGI-2</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23f6c453'/%3E%3Cpath fill='%230e1017' d='M16 44 29 14h7l13 30h-8l-3-8H27l-3 8zm14-15h5l-3-8z'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/dist/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="ARC Explorer home">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span>ARC<span class="brand-slash">/</span>EXPLORER</span>
+        </a>
+        <div class="topbar-status"><span class="status-dot"></span><span>LOCAL DATASET</span><span class="status-divider"></span><span>ARC-AGI-2</span></div>
+      </header>
+
+      <main class="workspace">
+        <section class="intro-row" aria-labelledby="page-title">
+          <div class="intro-copy">
+            <div class="eyebrow">VISUAL REASONING WORKBENCH <span>·</span> V1</div>
+            <h1 id="page-title">See the rule,<br /><em>not just the result.</em></h1>
+            <p>Browse every ARC-AGI-2 grid locally. Compare demonstrations, inspect transformations, and build intuition one task at a time.</p>
+          </div>
+          <div class="dataset-overview" aria-label="Dataset overview">
+            <div class="overview-label">CURRENT CORPUS</div>
+            <div class="overview-name" id="overview-name">Training</div>
+            <div class="overview-detail" id="overview-detail">Loading task index…</div>
+            <div class="overview-bar"><span id="overview-bar-fill"></span></div>
+          </div>
+        </section>
+
+        <section class="control-panel" aria-label="Dataset controls">
+          <div class="dataset-switcher" role="tablist" aria-label="Choose dataset">
+            <button class="dataset-tab is-active" id="training-tab" role="tab" aria-selected="true" data-dataset="training">
+              <span class="tab-number">01</span><span><strong>Training</strong><small>1,000 tasks</small></span>
+            </button>
+            <button class="dataset-tab" id="evaluation-tab" role="tab" aria-selected="false" data-dataset="evaluation">
+              <span class="tab-number">02</span><span><strong>Public eval</strong><small>120 tasks</small></span>
+            </button>
+          </div>
+          <div class="control-divider"></div>
+          <label class="search-box" for="task-search">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="task-search" type="search" autocomplete="off" placeholder="Find a task by ID…" />
+            <kbd>/</kbd>
+          </label>
+          <button class="quiet-button" id="random-task" type="button"><span aria-hidden="true">✦</span> Random task</button>
+          <button class="mode-toggle" id="challenge-toggle" type="button" aria-pressed="false">
+            <span class="mode-indicator" aria-hidden="true"></span>
+            <span class="mode-copy"><strong>Challenge mode</strong><small>hide test answers</small></span>
+            <span class="mode-state" id="challenge-state">off</span>
+          </button>
+          <div class="stepper" aria-label="Move between tasks">
+            <button class="icon-button" id="previous-task" type="button" aria-label="Previous task">←</button>
+            <span id="task-position">— / —</span>
+            <button class="icon-button" id="next-task" type="button" aria-label="Next task">→</button>
+          </div>
+        </section>
+
+        <div class="loading-state" id="loading-state">
+          <span class="loader"></span>
+          <div><strong>Opening the local corpus</strong><p>Reading task names from your downloaded dataset…</p></div>
+        </div>
+
+        <section class="explorer-layout" id="explorer-layout" hidden>
+          <aside class="task-rail" aria-label="Task queue">
+            <div class="rail-header">
+              <div><span class="rail-kicker">TASK QUEUE</span><strong id="queue-title">Training tasks</strong></div>
+              <span class="queue-count" id="queue-count">—</span>
+            </div>
+            <div class="task-list" id="task-list"></div>
+            <div class="rail-foot"><span class="rail-foot-mark">↳</span><span>Use the search field to jump through the full corpus.</span></div>
+          </aside>
+
+          <section class="task-stage" aria-live="polite">
+            <div class="stage-header">
+              <div>
+                <div class="stage-kicker"><span id="stage-dataset">TRAINING</span><span class="stage-kicker-dot">·</span><span id="stage-index">TASK 001</span></div>
+                <h2 id="task-title">Loading…</h2>
+                <div class="task-meta" id="task-meta">Preparing grid details</div>
+              </div>
+              <button class="copy-button" id="copy-task-id" type="button"><span aria-hidden="true">⧉</span> Copy ID</button>
+            </div>
+
+            <div class="task-notice" id="task-notice" hidden>
+              <span class="notice-icon">!</span>
+              <span>This task could not be loaded. Check that the local server is running from the project folder.</span>
+            </div>
+
+            <section class="task-section">
+              <div class="section-heading"><div><span class="section-number">01</span><h3>Learn the transformation</h3></div><span class="section-count" id="train-count">— demonstrations</span></div>
+              <div class="pair-stack" id="train-pairs"></div>
+            </section>
+
+            <div class="section-rule"></div>
+
+            <section class="task-section test-section">
+              <div class="section-heading"><div><span class="section-number accent-number">02</span><h3>Apply it to the test input</h3></div><span class="section-count" id="test-count">— test inputs</span></div>
+              <div class="test-note"><span class="test-note-dot"></span><span id="test-note-copy">Expected outputs are visible because this is the local public dataset.</span></div>
+              <div class="pair-stack" id="test-pairs"></div>
+            </section>
+          </section>
+        </section>
+
+        <section class="error-state" id="error-state" hidden>
+          <div class="error-code">LOCAL / 01</div>
+          <h2>Start the explorer from the project folder.</h2>
+          <p>The browser needs a local HTTP server to read the JSON files. From the repository root, run <code>python3 -m http.server 8000</code>, then open <code>http://localhost:8000/dist/</code>.</p>
+        </section>
+      </main>
+
+      <footer class="footer"><span>ARC Explorer</span><span>Official ARC-AGI-2 data · Apache-2.0</span><span>← → navigate <span class="footer-key">/</span> search</span></footer>
+    </div>
+
+    <div class="focus-modal" id="focus-modal" role="dialog" aria-modal="true" aria-labelledby="focus-title" hidden>
+      <div class="focus-backdrop" id="focus-backdrop"></div>
+      <div class="focus-dialog">
+        <div class="focus-header">
+          <div><span class="focus-kicker">FOCUS VIEW</span><h2 id="focus-title">Grid</h2><span class="focus-meta" id="focus-meta">—</span></div>
+          <button class="copy-button" id="close-focus" type="button">Close <span aria-hidden="true">×</span></button>
+        </div>
+        <div class="focus-canvas" id="focus-canvas"></div>
+        <div class="focus-footer"><span>Each cell represents one exact color value.</span><span>Press <kbd>Esc</kbd> to close</span></div>
+      </div>
+    </div>
+    <script src="/dist/app.js" defer></script>
+  </body>
+</html>
