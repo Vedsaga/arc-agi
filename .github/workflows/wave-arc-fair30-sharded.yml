@@ -1,0 +1,37 @@
+name: Wave ARC fair 30 sharded
+
+on:
+  push:
+    branches:
+      - research/wave-arc-fair30
+    paths:
+      - '.github/workflows/wave-arc-fair30-sharded.yml'
+  workflow_dispatch:
+
+jobs:
+  fair30-seed:
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [0, 1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU PyTorch
+        run: python -m pip install --upgrade pip && python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen 30-task comparison for seed
+        run: |
+          python research/experiments/wave_arc_fair30.py \
+            --limit 30 \
+            --seeds ${{ matrix.seed }} \
+            --iterations 500 \
+            --output research/experiments/wave_arc_fair30_seed${{ matrix.seed }}.csv
+      - name: Upload seed results
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave-arc-fair30-seed-${{ matrix.seed }}
+          path: research/experiments/wave_arc_fair30_seed${{ matrix.seed }}.csv
